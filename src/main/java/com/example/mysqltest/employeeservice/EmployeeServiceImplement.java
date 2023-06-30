@@ -55,6 +55,18 @@ public class EmployeeServiceImplement implements EmployeeService {
     public Employee updateById(Employee employee, Long id) {
         Optional<Employee> value = repository.findById(id);
         if (value.isPresent()) {
+            if (employee.getId() == null) {
+                throw new ApplicationException(406, "Invalid ID");
+            }
+            if (employee.getAge() < 18) {
+                throw new ApplicationException(406, "Age must be 18+");
+            }
+            if (employee.getName().equals("") || employee.getName().isEmpty()) {
+                throw new ApplicationException(406, "Name must not be null");
+            }
+            if (employee.getAddress().equals("") || employee.getAddress().isEmpty()) {
+                throw new ApplicationException(406, "Address must not be empty");
+            }
             repository.deleteById(id);
             return save(employee);
         } else {
