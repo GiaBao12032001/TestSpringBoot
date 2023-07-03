@@ -12,8 +12,7 @@ import lombok.Setter;
 @IdClass(EmployeeKey.class)
 public class EmpStore {
     @Id
-    Long employee_Id;
+    private Long employee_Id;
     @Id
-    Long store_Id;
-    private Store store;
+    private Long store_Id;
 }
