@@ -7,12 +7,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity
+@Entity(name = "`emp_store`")
 @Data
-@IdClass(EmployeeKey.class)
 public class EmpStore {
     @Id
-    private Long employee_Id;
-    @Id
-    private Long store_Id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+    @Column(name = "`employee_id`")
+    Long employeeId;
+    @Column(name = "`store_id`")
+    Long storeId;
 }

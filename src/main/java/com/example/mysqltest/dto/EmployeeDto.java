@@ -17,7 +17,5 @@ public class EmployeeDto {
     private int age;
     private String address;
     private double salary;
-    private double bonus;
-    private double penalty;
     private Long storeId;
 }
