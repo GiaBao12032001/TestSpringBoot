@@ -1,5 +1,6 @@
 package com.example.mysqltest.controller;
 
+import com.example.mysqltest.dto.EmployeeDto;
 import com.example.mysqltest.employeeservice.EmployeeService;
 import com.example.mysqltest.entity.Employee;
 import com.example.mysqltest.repository.EmployeeRepository;
@@ -19,12 +20,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/employee/")
-    public List<Employee> getEmployees() {
+    public List<EmployeeDto> getEmployees() {
         return service.findAll();
     }
 
     @GetMapping("/employee/{id}")
-    public Employee getEmployeeById(@PathVariable Long id) {
+    public EmployeeDto getEmployeeById(@PathVariable Long id) {
         return service.findById(id);
     }
 
@@ -39,13 +40,17 @@ public class EmployeeController {
     }
 
     @PutMapping("/employee/update/{id}")
-    public Employee updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+    public EmployeeDto updateEmployee(@PathVariable Long id, @RequestBody EmployeeDto employee) {
         return service.updateById(employee, id);
     }
 
     @GetMapping("/employee/salary/{id}")
     public double findSalaryById(@PathVariable Long id) {
-        Employee employee = service.findById(id);
-        return service.findSalaryById(employee);
+        return service.findSalaryById(id);
+    }
+
+    @GetMapping("/employee/store/{id}")
+    public EmployeeDto findEmployeeByStoreId(@PathVariable Long id) {
+        return service.findEmployeeByStoreId(id);
     }
 }

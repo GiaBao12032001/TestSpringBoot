@@ -1,15 +1,20 @@
 package com.example.mysqltest.employeeservice;
 
+import com.example.mysqltest.dto.EmployeeDto;
+import com.example.mysqltest.entity.EmpStore;
 import com.example.mysqltest.entity.Employee;
+import com.example.mysqltest.entity.Store;
 import com.example.mysqltest.exception.ApplicationException;
 import com.example.mysqltest.repository.EmpStoreRepository;
 import com.example.mysqltest.repository.EmployeeRepository;
+import com.example.mysqltest.repository.StoreRepository;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImplement implements EmployeeService {
@@ -19,10 +24,12 @@ public class EmployeeServiceImplement implements EmployeeService {
     private static EmployeeRepository employeeRepository;
     @Autowired
     private static EmpStoreRepository empStoreRepository;
+    @Autowired
+    private static StoreRepository storeRepository;
 
     @Override
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
+    public List<EmployeeDto> findAll() {
+        return employeeRepository.findAll().stream().map(this::convertToDTO).toList();
     }
 
     @Override
@@ -53,7 +60,8 @@ public class EmployeeServiceImplement implements EmployeeService {
     }
 
     @Override
-    public Employee updateById(Employee employee, Long id) {
+    public EmployeeDto updateById(EmployeeDto employee, Long id) {
+        Employee e = new Employee();
         Optional<Employee> value = employeeRepository.findById(id);
         if (value.isPresent()) {
             if (employee.getId() == null) {
@@ -69,24 +77,79 @@ public class EmployeeServiceImplement implements EmployeeService {
                 throw new ApplicationException(406, "Address must not be empty");
             }
             employeeRepository.deleteById(id);
-            return save(employee);
+            e.setId(employee.getId());
+            e.setName(employee.getName());
+            e.setAge(employee.getAge());
+            e.setAddress(employee.getAddress());
+            e.setSalary(employee.getSalary());
+            save(e);
+            return employee;
         } else {
             throw new ObjectNotFoundException(NOT_FOUND, id);
         }
     }
 
     @Override
-    public Employee findById(Long id) {
+    public EmployeeDto findById(Long id) {
         Optional<Employee> value = employeeRepository.findById(id);
         if (value.isPresent()) {
-            return value.get();
+            return convertToDTO(value.get());
         } else {
             throw new ObjectNotFoundException(NOT_FOUND, id);
         }
     }
 
     @Override
-    public double findSalaryById(Employee employee) {
-        return employee.getSalary() + employee.getBonus() - employee.getPenalty();
+    public double findSalaryById(Long id) {
+        Optional<Employee> value = employeeRepository.findById(id);
+        if (value.isPresent()) {
+            Employee employee = value.get();
+            return employee.getSalary() + employee.getBonus() - employee.getPenalty();
+        } else {
+            throw new ObjectNotFoundException(NOT_FOUND, id);
+        }
+    }
+
+    @Override
+    public EmployeeDto findEmployeeByStoreId(Long id) {
+        Optional<Store> value = storeRepository.findById(id);
+        if (value.isPresent()) {
+            Optional<EmpStore> empStoreValue = empStoreRepository.findById(value.get().getId());
+            if (empStoreValue.isPresent()) {
+                EmpStore empStore = empStoreValue.get();
+                Optional<Employee> employeeValue = employeeRepository.findById(empStore.getEmployeeId());
+                if (employeeValue.isPresent()) {
+                    Employee employee = employeeValue.get();
+                    return convertToDTOWithStoreId(employee, empStore);
+                } else {
+                    throw new ObjectNotFoundException(NOT_FOUND, id);
+                }
+            } else {
+                throw new ObjectNotFoundException(NOT_FOUND, id);
+            }
+        } else {
+            throw new ObjectNotFoundException("That Store doesn't exist", id);
+        }
+    }
+
+    public EmployeeDto convertToDTO(Employee employee) {
+        EmployeeDto employeeDTO = new EmployeeDto();
+        employeeDTO.setId(employee.getId());
+        employeeDTO.setName(employee.getName());
+        employeeDTO.setAge(employee.getAge());
+        employeeDTO.setAddress(employee.getAddress());
+        employeeDTO.setSalary(employee.getSalary());
+        return employeeDTO;
+    }
+
+    public EmployeeDto convertToDTOWithStoreId(Employee employee, EmpStore empStore) {
+        EmployeeDto employeeDTO = new EmployeeDto();
+        employeeDTO.setId(employee.getId());
+        employeeDTO.setName(employee.getName());
+        employeeDTO.setAge(employee.getAge());
+        employeeDTO.setAddress(employee.getAddress());
+        employeeDTO.setSalary(employee.getSalary());
+        employeeDTO.setStoreId(empStore.getStoreId());
+        return employeeDTO;
     }
 }
