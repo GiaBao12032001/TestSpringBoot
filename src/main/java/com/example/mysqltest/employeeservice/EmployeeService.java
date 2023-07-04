@@ -18,5 +18,5 @@ public interface EmployeeService {
 
     double findSalaryById(Long id);
 
-    EmployeeDto findEmployeeByStoreId(Long id);
+    List<EmployeeDto> findEmployeeByStoreId(Long id);
 }

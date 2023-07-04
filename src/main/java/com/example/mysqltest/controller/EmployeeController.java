@@ -50,7 +50,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/employee/store/{id}")
-    public EmployeeDto findEmployeeByStoreId(@PathVariable Long id) {
+    public List<EmployeeDto> findEmployeeByStoreId(@PathVariable Long id) {
         return service.findEmployeeByStoreId(id);
     }
 }

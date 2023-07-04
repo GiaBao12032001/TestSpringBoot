@@ -12,7 +12,9 @@ import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -116,24 +118,19 @@ public class EmployeeServiceImplement implements EmployeeService {
     }
 
     @Override
-    public EmployeeDto findEmployeeByStoreId(Long id) {
+    public List<EmployeeDto> findEmployeeByStoreId(Long id) {
+        List<EmployeeDto> employeeDto = new ArrayList<>();
         Optional<Store> value = storeRepository.findById(id);
         if (value.isPresent()) {
-            Optional<EmpStore> empStoreValue = empStoreRepository.findById(value.get().getId());
-            if (empStoreValue.isPresent()) {
-                EmpStore empStore = empStoreValue.get();
-                Optional<Employee> employeeValue = employeeRepository.findById(empStore.getEmployeeId());
-                if (employeeValue.isPresent()) {
-                    Employee employee = employeeValue.get();
-                    return convertToDTOWithStoreId(employee, empStore);
-                } else {
-                    throw new ObjectNotFoundException(NOT_FOUND, id);
-                }
-            } else {
-                throw new ObjectNotFoundException(NOT_FOUND, id);
+            List<EmpStore> empStoreList = empStoreRepository.findAllByStoreId(value.get().getId());
+            for (EmpStore empStore : empStoreList) {
+                employeeDto.add(convertToDTOWithStoreId(
+                        employeeRepository.findById(empStore.getEmployeeId()).get()
+                        , empStore));
             }
+            return employeeDto;
         } else {
-            throw new ObjectNotFoundException("That Store doesn't exist", id);
+            throw new ObjectNotFoundException("This Store does not exist", id);
         }
     }
 
