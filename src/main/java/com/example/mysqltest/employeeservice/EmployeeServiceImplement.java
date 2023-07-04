@@ -82,6 +82,13 @@ public class EmployeeServiceImplement implements EmployeeService {
                 if (employee.getStoreId().equals(storeValue.get().getId())) {
                     empStore.setEmployeeId(employee.getId());
                     empStore.setStoreId(storeValue.get().getId());
+                    Optional<EmpStore> empStoreValue = empStoreRepository.findByEmployeeId(employee.getId());
+                    if (empStoreValue.isPresent()) {
+                        empStoreRepository.deleteById(empStoreValue.get().getId());
+                        empStoreRepository.save(empStore);
+                    } else {
+                        throw new ApplicationException(404, "Invalid Store Id");
+                    }
                 }
             } else {
                 throw new ApplicationException(404, "That Store doesn't exist");
