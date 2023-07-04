@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -78,7 +77,7 @@ public class EmployeeServiceImplement implements EmployeeService {
             if (employee.getAddress().equals("") || employee.getAddress().isEmpty()) {
                 throw new ApplicationException(406, "Address must not be empty");
             }
-            if (employee.getStoreId() == storeRepository.findById(employee.getStoreId()).get().getId()) {
+            if (employee.getStoreId().equals(storeRepository.findById(employee.getStoreId()).get().getId())) {
                 empStore.setEmployeeId(employee.getId());
                 empStore.setStoreId(storeRepository.findById(employee.getStoreId()).get().getId());
             }
