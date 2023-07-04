@@ -77,9 +77,14 @@ public class EmployeeServiceImplement implements EmployeeService {
             if (employee.getAddress().equals("") || employee.getAddress().isEmpty()) {
                 throw new ApplicationException(406, "Address must not be empty");
             }
-            if (employee.getStoreId().equals(storeRepository.findById(employee.getStoreId()).get().getId())) {
-                empStore.setEmployeeId(employee.getId());
-                empStore.setStoreId(storeRepository.findById(employee.getStoreId()).get().getId());
+            Optional<Store> storeValue = storeRepository.findById(employee.getStoreId());
+            if (storeValue.isPresent()) {
+                if (employee.getStoreId().equals(storeValue.get().getId())) {
+                    empStore.setEmployeeId(employee.getId());
+                    empStore.setStoreId(storeValue.get().getId());
+                }
+            } else {
+                throw new ApplicationException(404, "That Store doesn't exist");
             }
             employeeRepository.deleteById(id);
             e.setId(employee.getId());
@@ -88,7 +93,7 @@ public class EmployeeServiceImplement implements EmployeeService {
             e.setAddress(employee.getAddress());
             e.setSalary(employee.getSalary());
             save(e);
-            employee.setStoreId(storeRepository.findById(employee.getStoreId()).get().getId());
+            employee.setStoreId(storeValue.get().getId());
             return employee;
         } else {
             throw new ObjectNotFoundException(NOT_FOUND, id);
@@ -123,9 +128,10 @@ public class EmployeeServiceImplement implements EmployeeService {
         if (value.isPresent()) {
             List<EmpStore> empStoreList = empStoreRepository.findAllByStoreId(value.get().getId());
             for (EmpStore empStore : empStoreList) {
-                employeeDto.add(convertToDTOWithStoreId(
-                        employeeRepository.findById(empStore.getEmployeeId()).get()
-                        , empStore));
+                Optional<Employee> employeeValue = employeeRepository.findById(empStore.getEmployeeId());
+                employeeValue.ifPresent(employee -> employeeDto.add(convertToDTOWithStoreId(
+                        employee
+                        , empStore)));
             }
             return employeeDto;
         } else {
