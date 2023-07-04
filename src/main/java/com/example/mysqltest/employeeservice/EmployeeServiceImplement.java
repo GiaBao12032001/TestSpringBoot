@@ -20,11 +20,11 @@ public class EmployeeServiceImplement implements EmployeeService {
 
     private static final String NOT_FOUND = "Employee Not Found.";
     @Autowired
-    private static EmployeeRepository employeeRepository;
+    private EmployeeRepository employeeRepository;
     @Autowired
-    private static EmpStoreRepository empStoreRepository;
+    private EmpStoreRepository empStoreRepository;
     @Autowired
-    private static StoreRepository storeRepository;
+    private StoreRepository storeRepository;
 
     @Override
     public List<EmployeeDto> findAll() {
