@@ -61,6 +61,7 @@ public class EmployeeServiceImplement implements EmployeeService {
     @Override
     public EmployeeDto updateById(EmployeeDto employee, Long id) {
         Employee e = new Employee();
+        EmpStore empStore = new EmpStore();
         Optional<Employee> value = employeeRepository.findById(id);
         if (value.isPresent()) {
             if (employee.getId() == null) {
@@ -75,6 +76,10 @@ public class EmployeeServiceImplement implements EmployeeService {
             if (employee.getAddress().equals("") || employee.getAddress().isEmpty()) {
                 throw new ApplicationException(406, "Address must not be empty");
             }
+            if (employee.getStoreId() == storeRepository.findById(employee.getStoreId()).get().getId()) {
+                empStore.setEmployeeId(employee.getId());
+                empStore.setStoreId(storeRepository.findById(employee.getStoreId()).get().getId());
+            }
             employeeRepository.deleteById(id);
             e.setId(employee.getId());
             e.setName(employee.getName());
@@ -82,6 +87,7 @@ public class EmployeeServiceImplement implements EmployeeService {
             e.setAddress(employee.getAddress());
             e.setSalary(employee.getSalary());
             save(e);
+            employee.setStoreId(storeRepository.findById(employee.getStoreId()).get().getId());
             return employee;
         } else {
             throw new ObjectNotFoundException(NOT_FOUND, id);
